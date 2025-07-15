@@ -1,0 +1,143 @@
+# Minimal OPL Makefile for MicroSD Memory Card Adapter
+# Optimized build configuration
+
+# ============================================================================
+# COMPILER SETTINGS
+# ============================================================================
+
+EE_CC = ee-gcc
+EE_AS = ee-as
+EE_LD = ee-ld
+EE_AR = ee-ar
+EE_OBJCOPY = ee-objcopy
+
+# ============================================================================
+# COMPILER FLAGS
+# ============================================================================
+
+EE_CFLAGS = -O2 -G0 -Wall -fomit-frame-pointer -fno-builtin -fno-exceptions
+EE_CFLAGS += -DPS2 -D__PS2__ -D__EE__ -D__LANGUAGE_C__
+EE_CFLAGS += -DMINIMAL_OPL -DMICROSD_OPTIMIZED
+
+# ============================================================================
+# LINKER FLAGS
+# ============================================================================
+
+EE_LDFLAGS = -T$(PS2SDK)/ee/startup.ld -nostdlib -nostartfiles
+EE_LDFLAGS += -Wl,--gc-sections -Wl,-s
+
+# ============================================================================
+# INCLUDES
+# ============================================================================
+
+EE_INCS = -I$(PS2SDK)/ee/include -I$(PS2SDK)/common/include
+EE_INCS += -I./include -I./src
+
+# ============================================================================
+# LIBRARIES
+# ============================================================================
+
+EE_LIBS = -L$(PS2SDK)/ee/lib -L$(PS2SDK)/lib
+EE_LIBS += -lkernel -lc -lsifrpc -lsifcmd -lsifman
+
+# ============================================================================
+# SOURCE FILES (Minimal set)
+# ============================================================================
+
+# Core files only
+EE_SRCS = src/opl.c \
+           src/system.c \
+           src/util.c \
+           src/config.c \
+           src/lang.c \
+           src/sound.c \
+           src/gui.c \
+           src/bdmsupport.c \
+           src/hddsupport.c \
+           src/vmc_groups.c \
+           src/OSDHistory.c
+
+# ============================================================================
+# OBJECT FILES
+# ============================================================================
+
+EE_OBJS = $(EE_SRCS:.c=.o)
+
+# ============================================================================
+# TARGET
+# ============================================================================
+
+TARGET = minimal_opl.elf
+
+# ============================================================================
+# BUILD RULES
+# ============================================================================
+
+all: $(TARGET)
+
+$(TARGET): $(EE_OBJS)
+	$(EE_CC) $(EE_LDFLAGS) -o $@ $(EE_OBJS) $(EE_LIBS)
+
+%.o: %.c
+	$(EE_CC) $(EE_CFLAGS) $(EE_INCS) -c $< -o $@
+
+# ============================================================================
+# CLEAN
+# ============================================================================
+
+clean:
+	rm -f $(EE_OBJS) $(TARGET)
+
+# ============================================================================
+# INSTALL
+# ============================================================================
+
+install: $(TARGET)
+	cp $(TARGET) /path/to/ps2/memory/card/
+
+# ============================================================================
+# HELP
+# ============================================================================
+
+help:
+	@echo "Minimal OPL Build System"
+	@echo "========================"
+	@echo "make        - Build minimal OPL"
+	@echo "make clean  - Clean build files"
+	@echo "make install- Install to PS2 memory card"
+	@echo "make help   - Show this help"
+
+# ============================================================================
+# MODULE BUILDING (Only essential modules)
+# ============================================================================
+
+# Build MCEMU module
+mcemu:
+	$(MAKE) -C modules/mcemu
+
+# Build BDM module  
+bdm:
+	$(MAKE) -C modules/iopcore
+
+# Build ISOFS module
+isofs:
+	$(MAKE) -C modules/isofs
+
+# Build CDVDMAN module
+cdvdman:
+	$(MAKE) -C modules/iopcore/cdvdman
+
+# Build all modules
+modules: mcemu bdm isofs cdvdman
+
+# ============================================================================
+# DEPENDENCIES
+# ============================================================================
+
+-include $(EE_SRCS:.c=.d)
+
+# ============================================================================
+# PHONY TARGETS
+# ============================================================================
+
+.PHONY: all clean install help modules mcemu bdm isofs cdvdman 

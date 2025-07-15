@@ -1,56 +1,115 @@
-#
-# NOTE! Please use 'git ls-files -i --exclude-standard'
-# command after changing this file, to see if there are
-# any tracked files which get ignored after the change.
-#
-# Normal rules
-#
-.*
-*.a
-*.diff
+# Minimal OPL - MicroSD Memory Card Adapter
+# Git ignore file for PS2 development
+
+# Build artifacts
 *.elf
-*.ELF
-*.erl
-*.exe
 *.irx
-*.map
 *.o
-*.patch
-*.rej
-*.s
-*.zip
-*.ZIP
 *.a
+*.so
 *.d
-DETAILED_CHANGELOG
 
-#
-# files that we don't want to ignore
-#
-!.gitignore
-!.gitattributes
-!.github
-!.editorconfig
-!.clang-format
-!.clang-format-ignore
-!modules/debug/*.irx
+# Object files
+*.obj
+*.ko
+*.elf
+*.app
+*.i
+*.ii
+*.exe
+*.out
+*.app
+*.dSYM/
 
-#
-# Generated source files
-#
-pc/iso2usbld/bin/iso2usbld
-IOPRP_img.c
-asm/*.c
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
 
-#
-# 3rd party
-#
-*modules/network/lwNBD
-*thirdparty/clang-format-lint-action
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
 
-# language
-lng/lang_*.lng
-*lng_src
-src/lang_internal.c
-include/lang_autogen.h
-tmp/
+# Build directories
+build/
+dist/
+target/
+out/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.bak
+
+# PS2SDK specific
+ps2sdk/
+ps2dev/
+
+# Configuration files (keep templates)
+*.cfg
+!*.cfg.template
+
+# Binary files
+*.bin
+*.iso
+*.zso
+
+# Backup files
+*.backup
+*.old
+*.orig
+
+# Test files
+test_*
+*_test.*
+
+# Documentation build
+docs/_build/
+docs/build/
+
+# Package files
+*.tar.gz
+*.zip
+*.rar
+
+# Memory card files
+*.vmc
+*.ps2
+
+# Game files (don't commit actual games)
+games/
+*.iso
+*.zso
+*.elf
+
+# Keep essential files
+!minimal_opl_config.h
+!minimal_opl_microsd.c
+!minimal_opl_makefile
+!README_MINIMAL_OPL.md
+!BUILD_MINIMAL_OPL.md
+!src/minimal_opl_integration.c
+!include/minimal_opl.h

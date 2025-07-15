@@ -2000,9 +2000,20 @@ static void autoLaunchBDMGame(char *argv[])
     bdmLaunchGame(NULL, -1, configSet);
 }
 
+// Add minimal OPL integration at the top of the file
+#include "minimal_opl.h"
+
 // --------------------- Main --------------------
 int main(int argc, char *argv[])
 {
+// Check if we should run in minimal mode
+#ifdef MINIMAL_OPL
+    if (1) { // Always run minimal mode when MINIMAL_OPL is defined
+        printf("OPL: Starting in minimal mode for microSD memory card adapter\n");
+        return minimal_opl_start();
+    }
+#endif
+
 #ifdef __DECI2_DEBUG
     sysInitDECI2();
 #endif
