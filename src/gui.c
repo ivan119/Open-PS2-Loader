@@ -1235,18 +1235,18 @@ static float guiCalcPerlin(float x, float y, float z)
     float v = fade(y);
     float w = fade(z);
 
-    // TODO: Low priority... This could be done on VU0 (xyzw for the first 4 mixes)
-    // The result in sw
-    // Interpolate along x the contributions from each of the corners
+    // Performance: Use VU0MixVec for both x and y interpolations (batching four mixes in parallel)
     VU_VECTOR rv;
-    VU0MixVec(&b, &a, u, &rv);
-
-    // TODO: The VU0MixVec could as well mix the results (as follows) - might improve performance...
-    // Interpolate the four results along y
-    float nxy0 = mix(rv.x, rv.z, v);
-    float nxy1 = mix(rv.y, rv.w, v);
+    VU0MixVec(&b, &a, u, &rv); // Interpolate along x for all four corners
+    // Now batch y interpolation using VU0MixVec again
+    VU_VECTOR rv2;
+    // Prepare vectors for y interpolation
+    // rv.x, rv.z -> nxy0; rv.y, rv.w -> nxy1
+    VU_VECTOR yvec0 = {rv.x, rv.z, 0, 0};
+    VU_VECTOR yvec1 = {rv.y, rv.w, 0, 0};
+    VU0MixVec(&yvec0, &yvec1, v, &rv2);
     // Interpolate the two last results along z
-    float nxyz = mix(nxy0, nxy1, w);
+    float nxyz = mix(rv2.x, rv2.y, w);
 
     return nxyz;
 }

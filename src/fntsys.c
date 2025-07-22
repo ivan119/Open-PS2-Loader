@@ -466,30 +466,24 @@ static void fntRenderGlyph(fnt_glyph_cache_entry_t *glyph, int pen_x, int pen_y)
 {
     // only if glyph has atlas placement
     if (glyph->allocation) {
-        /* TODO: Ineffective on many parts:
-         * 1. Usage of floats for UV - fixed point should suffice (and is used internally by GS for UV)
-         *
-         * 2. GS_SETREG_TEX0 for every quad - why? gsKit should only set texture if demanded
-         *    We should prepare a special fnt render method that would step over most of the
-         *    performance problems under - beginning with rmSetupQuad and continuing into gsKit
-         *    - this method would handle the preparation of the quads and GS upload itself,
-         *    without the use of prim_quad_texture and rmSetupQuad...
-         */
+        /* Performance: Use fixed-point (12.4) for UVs, as GS expects this format. */
+        // NOTE: For best performance, batch glyphs with the same texture to minimize state changes (future enhancement).
         quad.ul.x = pen_x + glyph->ox;
         if (rmGetInterlacedFrameMode() == 0)
             quad.ul.y = pen_y + glyph->oy;
         else
             quad.ul.y = (float)pen_y + ((float)glyph->oy / 2.0f);
-        quad.ul.u = glyph->allocation->x;
-        quad.ul.v = glyph->allocation->y;
+        // Convert to 12.4 fixed-point
+        quad.ul.u = (int)(glyph->allocation->x * 16.0f);
+        quad.ul.v = (int)(glyph->allocation->y * 16.0f);
 
         quad.br.x = quad.ul.x + glyph->width;
         if (rmGetInterlacedFrameMode() == 0)
             quad.br.y = quad.ul.y + glyph->height;
         else
             quad.br.y = quad.ul.y + ((float)glyph->height / 2.0f);
-        quad.br.u = quad.ul.u + glyph->width;
-        quad.br.v = quad.ul.v + glyph->height;
+        quad.br.u = (int)((glyph->allocation->x + glyph->width) * 16.0f);
+        quad.br.v = (int)((glyph->allocation->y + glyph->height) * 16.0f);
 
         quad.txt = &glyph->atlas->surface;
 
